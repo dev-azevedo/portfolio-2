@@ -1,0 +1,367 @@
+---
+import { Picture, getImage } from 'astro:assets'
+
+import Icon from './Icon.astro'
+import TechChip from './TechChip.astro'
+import { skills } from '@/data/skills'
+import { useI18n } from '@/i18n'
+import type { Locale, Project } from '@/types/content'
+
+interface Props {
+  project: Project
+  locale: Locale
+  slotNumber: number
+  featured?: boolean
+}
+
+const { project, locale, slotNumber, featured = false } = Astro.props
+const { t, l, fill } = useI18n(locale)
+
+const stack = project.stack.flatMap((id) => skills.filter((skill) => skill.id === id))
+const total = project.gallery.length
+
+// Low-res copies for the 8-BIT screen, upscaled with nearest-neighbour.
+const sprites = await Promise.all(
+  project.gallery.map((image) => getImage({ src: image.src, width: 240, format: 'png' })),
+)
+// Full-size frames for the lightbox, shared by both modes.
+const large = await Promise.all(
+  project.gallery.map((image) => getImage({ src: image.src, width: 1200, format: 'webp' })),
+)
+const lightbox = JSON.stringify(
+  project.gallery.map((image, i) => ({
+    src: large[i]!.src,
+    width: large[i]!.attributes.width,
+    height: large[i]!.attributes.height,
+    alt: l(image.alt),
+  })),
+)
+---
+
+<article class:list={['cart panel', { featured }]} data-reveal data-gallery={lightbox}>
+  <div class="screen">
+    <button type="button" class="open" data-open aria-label={`${t.projects.openGallery}: ${project.title}`}>
+      {
+        project.gallery.map((image, i) => (
+          <div class:list={['frame', { 'is-active': i === 0 }]} data-frame>
+            <img
+              class="only-8bit sprite"
+              src={sprites[i]!.src}
+              width={sprites[i]!.attributes.width}
+              height={sprites[i]!.attributes.height}
+              alt={l(image.alt)}
+              loading="lazy"
+              decoding="async"
+            />
+            <Picture
+              class="only-4k shot"
+              src={image.src}
+              formats={['avif', 'webp']}
+              widths={[640, 960, 1200]}
+              sizes={featured ? '(min-width: 64rem) 44rem, 92vw' : '(min-width: 56rem) 36rem, 92vw'}
+              alt={l(image.alt)}
+              loading="lazy"
+            />
+          </div>
+        ))
+      }
+      <span class="zoom" aria-hidden="true"><Icon name="lucide:maximize-2" /></span>
+    </button>
+
+    {
+      total > 1 && (
+        <div class="controls">
+          <button type="button" class="ctl" data-prev aria-label={t.projects.prev}>
+            <Icon name="lucide:chevron-left" />
+          </button>
+          <span class="count" aria-live="polite" data-count data-template={t.projects.screenOf}>
+            <span aria-hidden="true">1/{total}</span>
+            <span class="sr-only">{fill(t.projects.screenOf, { n: 1, total })}</span>
+          </span>
+          <button type="button" class="ctl" data-next aria-label={t.projects.next}>
+            <Icon name="lucide:chevron-right" />
+          </button>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="label">
+    <p class="meta">
+      <span class="only-8bit">{t.game.slot} {slotNumber} ·</span>{' '}
+      <span>{project.year}</span>{' '}
+      {project.role && <span>· {l(project.role)}</span>}
+    </p>
+    <h3>{project.title}</h3>
+    <p class="summary">{l(project.summary)}</p>
+    <ul class="stack" aria-label={t.projects.stackLabel}>
+      {
+        stack.map((skill) => (
+          <li>
+            <TechChip skill={skill} />
+          </li>
+        ))
+      }
+    </ul>
+    {
+      (project.liveUrl || project.repoUrl) && (
+        <div class="links">
+          {project.liveUrl && (
+            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+              {t.projects.viewLive}
+              <Icon name="lucide:arrow-up-right" />
+              <span class="sr-only">{t.a11y.newTab}</span>
+            </a>
+          )}
+          {project.repoUrl && (
+            <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" class="btn">
+              {t.projects.viewCode}
+              <span class="sr-only">{t.a11y.newTab}</span>
+            </a>
+          )}
+        </div>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .cart {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: clip;
+  }
+
+  @media (min-width: 64rem) {
+    .featured {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      grid-template-rows: none;
+    }
+  }
+
+  /* --- screen --- */
+
+  .screen {
+    position: relative;
+    background: var(--bg-sunken);
+  }
+
+  .open {
+    display: block;
+    width: 100%;
+    position: relative;
+    cursor: zoom-in;
+    overflow: hidden;
+  }
+
+  .frame {
+    display: none;
+    aspect-ratio: 16 / 9;
+  }
+
+  .frame.is-active {
+    display: block;
+  }
+
+  .frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .sprite {
+    image-rendering: pixelated;
+  }
+
+  .shot {
+    transition: transform 600ms var(--ease-out-quint);
+  }
+
+  .zoom {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--fg);
+    background: color-mix(in oklch, var(--bg) 70%, transparent);
+    border-radius: var(--radius-pill);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .open:hover .zoom,
+    .open:focus-visible .zoom {
+      opacity: 1;
+    }
+    :global([data-mode='4k']) .open:hover :global(.shot) {
+      transform: scale(1.025);
+    }
+  }
+
+  @media (hover: none) {
+    .zoom {
+      opacity: 1;
+    }
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-sunken);
+    border-top: 1px solid var(--line);
+  }
+
+  .ctl {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--fg-2);
+    border-radius: var(--radius-pill);
+    touch-action: manipulation;
+  }
+
+  @media (hover: hover) {
+    .ctl:hover {
+      color: var(--fg);
+      background: var(--bg-raised);
+    }
+  }
+
+  .ctl:active {
+    transform: scale(0.94);
+  }
+
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  /* 8-BIT cartridge: grooved top, screen sunk into a bezel, sticker label. */
+  :global([data-mode='8bit']) .cart {
+    background: #7a6fa3;
+    --panel-line: var(--c-shadow);
+    padding: 20px 14px 14px;
+  }
+
+  :global([data-mode='8bit']) .cart::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 30%;
+    right: 30%;
+    height: 8px;
+    background: repeating-linear-gradient(90deg, #4f4677 0 6px, transparent 6px 12px);
+  }
+
+  :global([data-mode='8bit']) .screen {
+    box-shadow:
+      inset 0 0 0 4px var(--c-shadow),
+      0 0 0 4px #5b5185;
+    padding: 4px;
+    background: var(--c-shadow);
+  }
+
+  :global([data-mode='8bit']) .controls {
+    border-top: 4px solid var(--c-shadow);
+    background: var(--c-night);
+  }
+
+  :global([data-mode='8bit']) .label {
+    background: var(--c-paper);
+    color: var(--c-night);
+    margin-top: 14px;
+    box-shadow: 4px 4px 0 0 var(--c-shadow);
+    --fg: var(--c-night);
+    --fg-2: #3b2f5e;
+    --fg-muted: #5c4f86;
+    --bg-sunken: #e2d6b6;
+    --accent: #6a3fd9;
+    --accent-hi: #7d55e6;
+    --accent-fg: var(--c-paper);
+    --focus: #6a3fd9;
+  }
+
+  :global([data-mode='8bit']) .label :global(.tech) {
+    --brand: var(--brand-light, var(--fg));
+  }
+
+  @media (min-width: 64rem) {
+    :global([data-mode='8bit']) .featured .label {
+      margin-top: 0;
+      margin-left: 14px;
+    }
+  }
+
+  /* --- label --- */
+
+  .label {
+    display: grid;
+    gap: 0.875rem;
+    align-content: start;
+    padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375em;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+  }
+
+  :global([data-mode='8bit']) .meta {
+    font-family: var(--font-display);
+    font-size: 0.5625rem;
+    color: var(--accent);
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+  }
+
+  :global([data-mode='8bit']) h3 {
+    font-size: clamp(0.875rem, 0.8rem + 0.4vw, 1.125rem);
+    line-height: 1.5;
+  }
+
+  :global([data-mode='4k']) h3 {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2.125rem);
+    font-weight: 700;
+  }
+
+  .summary {
+    color: var(--fg-2);
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  :global([data-mode='4k']) .cart:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  :global([data-mode='4k']) .cart {
+    transition: box-shadow 400ms var(--ease-out-quint);
+  }
+</style>

@@ -1,0 +1,584 @@
+@import 'tailwindcss';
+
+/*
+ * Two skins, one markup. Components only read the semantic tokens below; each
+ * mode (and, in 4K, each theme) redefines them. Anything that exists in one
+ * mode only is gated with `.only-8bit` / `.only-4k`.
+ */
+
+@theme {
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+}
+
+:root {
+  --header-h: 4rem;
+  --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
+  --section-y: clamp(4.5rem, 3rem + 7vw, 9rem);
+  --content-max: 74rem;
+  --prose-max: 62ch;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ---------------------------------------------------------------- 8-BIT -- */
+
+/*
+ * Palette: 16 swatches in the PICO-8 spirit, anchored on the brand violet.
+ * Night indigo instead of black, parchment instead of white.
+ */
+:root,
+[data-mode='8bit'] {
+  --px: 4px;
+
+  --c-night: #140f26;
+  --c-ink: #1d1636;
+  --c-dusk: #2b2152;
+  --c-plum: #45377d;
+  --c-lilac: #9d8cd6;
+  --c-mist: #c9bfe6;
+  --c-paper: #f3ead3;
+  --c-violet: #9a6bff;
+  --c-violet-hi: #c3a6ff;
+  --c-gold: #f4c95d;
+  --c-gold-lo: #b9852c;
+  --c-mint: #6fdc8c;
+  --c-mint-lo: #2f8f5b;
+  --c-coral: #ff6b7a;
+  --c-sky: #63c8ff;
+  --c-shadow: #0a0714;
+
+  --bg: var(--c-ink);
+  --bg-raised: var(--c-dusk);
+  --bg-sunken: var(--c-night);
+  --fg: var(--c-paper);
+  --fg-2: var(--c-mist);
+  --fg-muted: var(--c-lilac);
+  --line: var(--c-plum);
+  --line-strong: var(--c-lilac);
+  --accent: var(--c-gold);
+  --accent-hi: #ffe08f;
+  --accent-fg: var(--c-night);
+  --accent-2: var(--c-violet-hi);
+  --ok: var(--c-mint);
+  --focus: var(--c-gold);
+
+  --font-display: 'Press Start 2P', ui-monospace, monospace;
+  --font-body: 'VT323', ui-monospace, monospace;
+  --font-mono: 'VT323', ui-monospace, monospace;
+
+  /* VT323 has a small x-height; it needs a bigger base to read comfortably. */
+  --text-base: clamp(1.3125rem, 1.25rem + 0.25vw, 1.5rem);
+  --text-sm: 1.25rem;
+  --text-xs: 1.125rem;
+  --text-lead: clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem);
+  --text-h3: clamp(0.8125rem, 0.75rem + 0.25vw, 1rem);
+  --text-h2: clamp(1.125rem, 0.9rem + 1vw, 1.75rem);
+  --text-display: clamp(1.75rem, 1rem + 3.6vw, 3.75rem);
+  --text-kicker: 0.6875rem;
+  --leading-body: 1.2;
+  --leading-display: 1.35;
+  --tracking-display: 0;
+
+  --radius: 0;
+  --radius-pill: 0;
+  --border: var(--px) solid var(--line);
+  --shadow: var(--px) var(--px) 0 0 var(--c-shadow);
+  --shadow-lg: calc(var(--px) * 2) calc(var(--px) * 2) 0 0 var(--c-shadow);
+
+  --ease: steps(4, end);
+  --dur: 240ms;
+
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ 4K -- */
+
+[data-mode='4k'] {
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --text-base: clamp(1rem, 0.96rem + 0.18vw, 1.0625rem);
+  --text-sm: 0.9375rem;
+  --text-xs: 0.8125rem;
+  --text-lead: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
+  --text-h3: clamp(1.125rem, 1.08rem + 0.2vw, 1.25rem);
+  --text-h2: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+  --text-display: clamp(3rem, 1.6rem + 6.4vw, 7rem);
+  --text-kicker: 0.8125rem;
+  --leading-body: 1.6;
+  --leading-display: 0.95;
+  --tracking-display: -0.04em;
+
+  --radius: 1.25rem;
+  --radius-pill: 999px;
+  --ease: var(--ease-out-quint);
+  --dur: 320ms;
+}
+
+[data-mode='4k'][data-theme='dark'] {
+  --bg: oklch(0.165 0.014 300);
+  --bg-raised: oklch(0.215 0.018 300);
+  --bg-sunken: oklch(0.135 0.012 300);
+  --fg: oklch(0.965 0.008 300);
+  --fg-2: oklch(0.84 0.015 300);
+  --fg-muted: oklch(0.68 0.02 300);
+  --line: oklch(0.96 0.01 300 / 0.1);
+  --line-strong: oklch(0.96 0.01 300 / 0.22);
+  --accent: oklch(0.74 0.16 300);
+  --accent-hi: oklch(0.82 0.12 300);
+  --accent-fg: oklch(0.16 0.03 300);
+  --accent-2: oklch(0.85 0.13 80);
+  --ok: oklch(0.8 0.15 155);
+  --focus: oklch(0.82 0.12 300);
+
+  --border: 1px solid var(--line);
+  --shadow: 0 1px 0 0 oklch(1 0 0 / 0.04) inset, 0 1px 2px oklch(0 0 0 / 0.4),
+    0 12px 32px -12px oklch(0 0 0 / 0.6);
+  --shadow-lg: 0 1px 0 0 oklch(1 0 0 / 0.06) inset, 0 2px 4px oklch(0 0 0 / 0.3),
+    0 32px 64px -24px oklch(0.1 0.08 300 / 0.8);
+
+  color-scheme: dark;
+}
+
+[data-mode='4k'][data-theme='light'] {
+  --bg: oklch(0.985 0.004 300);
+  --bg-raised: oklch(1 0.002 300);
+  --bg-sunken: oklch(0.955 0.008 300);
+  --fg: oklch(0.2 0.02 300);
+  --fg-2: oklch(0.36 0.025 300);
+  --fg-muted: oklch(0.5 0.025 300);
+  --line: oklch(0.25 0.03 300 / 0.1);
+  --line-strong: oklch(0.25 0.03 300 / 0.2);
+  --accent: oklch(0.52 0.21 300);
+  --accent-hi: oklch(0.45 0.21 300);
+  --accent-fg: oklch(0.99 0.005 300);
+  --accent-2: oklch(0.6 0.15 65);
+  --ok: oklch(0.55 0.14 155);
+  --focus: oklch(0.52 0.21 300);
+
+  --border: 1px solid var(--line);
+  --shadow: 0 1px 2px oklch(0.3 0.05 300 / 0.06), 0 8px 24px -12px oklch(0.3 0.08 300 / 0.18);
+  --shadow-lg: 0 2px 4px oklch(0.3 0.05 300 / 0.05),
+    0 32px 64px -28px oklch(0.35 0.12 300 / 0.35);
+
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------- base -- */
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 100%;
+    line-height: var(--leading-body);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  [data-mode='8bit'] {
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+  }
+
+  [data-mode='4k'] {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-size: var(--text-base);
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  [data-mode='4k'] :focus-visible {
+    outline-width: 2px;
+    border-radius: 6px;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition: none !important;
+}
+
+/* --------------------------------------------------------- mode gating -- */
+
+[data-mode='4k'] .only-8bit,
+[data-mode='8bit'] .only-4k {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -------------------------------------------------------------- layout -- */
+
+.container {
+  width: 100%;
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: max(var(--gutter), env(safe-area-inset-left));
+}
+
+.section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+
+/* ---------------------------------------------------------- primitives -- */
+
+/*
+ * `.panel` is the one surface. 8-BIT draws a 4px pixel border with notched
+ * corners (four offset box-shadows, no border-radius) and a hard drop shadow;
+ * 4K draws a hairline, soft layered shadow and a real radius.
+ */
+.panel {
+  background: var(--bg-raised);
+  border-radius: var(--radius);
+  position: relative;
+}
+
+[data-mode='8bit'] .panel {
+  margin: var(--px);
+  box-shadow:
+    0 calc(var(--px) * -1) 0 0 var(--panel-line, var(--line)),
+    0 var(--px) 0 0 var(--panel-line, var(--line)),
+    calc(var(--px) * -1) 0 0 0 var(--panel-line, var(--line)),
+    var(--px) 0 0 0 var(--panel-line, var(--line)),
+    calc(var(--px) * 2) calc(var(--px) * 2) 0 0 var(--c-shadow);
+}
+
+[data-mode='4k'] .panel {
+  border: var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* Kicker: "STAGE 01 · CAREER MAP" in 8-BIT, "01 — Career map" in 4K. */
+.kicker {
+  font-family: var(--font-display);
+  font-size: var(--text-kicker);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75em;
+  letter-spacing: 0.02em;
+}
+
+[data-mode='4k'] .kicker {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+[data-mode='4k'] .kicker .kicker-num {
+  color: var(--accent);
+}
+
+/* Buttons */
+.btn {
+  --btn-bg: var(--bg-raised);
+  --btn-fg: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625em;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.125rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition:
+    transform var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.btn-primary {
+  --btn-bg: var(--accent);
+  --btn-fg: var(--accent-fg);
+}
+
+[data-mode='8bit'] .btn {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  padding: 0.75rem 1rem;
+  margin: var(--px);
+  box-shadow:
+    0 calc(var(--px) * -1) 0 0 var(--c-shadow),
+    0 var(--px) 0 0 var(--c-shadow),
+    calc(var(--px) * -1) 0 0 0 var(--c-shadow),
+    var(--px) 0 0 0 var(--c-shadow),
+    inset calc(var(--px) * -1) calc(var(--px) * -1) 0 0 oklch(0 0 0 / 0.28),
+    inset var(--px) var(--px) 0 0 oklch(1 0 0 / 0.18);
+}
+
+[data-mode='8bit'] .btn:active {
+  transform: translate(0, var(--px));
+  box-shadow:
+    0 calc(var(--px) * -1) 0 0 var(--c-shadow),
+    0 var(--px) 0 0 var(--c-shadow),
+    calc(var(--px) * -1) 0 0 0 var(--c-shadow),
+    var(--px) 0 0 0 var(--c-shadow),
+    inset var(--px) var(--px) 0 0 oklch(0 0 0 / 0.28);
+}
+
+[data-mode='4k'] .btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  border: var(--border);
+  box-shadow: var(--shadow);
+}
+
+[data-mode='4k'] .btn-primary {
+  border-color: transparent;
+  box-shadow:
+    0 1px 0 0 oklch(1 0 0 / 0.25) inset,
+    0 10px 30px -10px color-mix(in oklch, var(--accent) 70%, transparent);
+}
+
+[data-mode='4k'] .btn:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  [data-mode='8bit'] .btn:hover {
+    --btn-bg: var(--c-plum);
+  }
+  [data-mode='8bit'] .btn-primary:hover {
+    --btn-bg: var(--accent-hi);
+  }
+  [data-mode='4k'] .btn:hover {
+    --btn-bg: var(--bg-sunken);
+  }
+  [data-mode='4k'] .btn-primary:hover {
+    --btn-bg: var(--accent-hi);
+  }
+}
+
+.icon {
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/* Inline link used in prose */
+.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+/* --------------------------------------------------------- 8-BIT world -- */
+
+/* Static star field behind everything; pixels, not blurs. */
+[data-mode='8bit'] body {
+  background:
+    radial-gradient(var(--c-mist) 1px, transparent 1.5px) 0 0 / 97px 89px,
+    radial-gradient(var(--c-lilac) 1px, transparent 1.5px) 41px 23px / 131px 113px,
+    radial-gradient(var(--c-gold) 1px, transparent 1.5px) 73px 61px / 211px 197px,
+    var(--bg);
+  image-rendering: pixelated;
+}
+
+/* CRT: scanlines + vignette. Purely decorative, never intercepts input. */
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      oklch(0 0 0 / 0) 0,
+      oklch(0 0 0 / 0) 2px,
+      oklch(0 0 0 / 0.16) 3px,
+      oklch(0 0 0 / 0) 4px
+    ),
+    radial-gradient(ellipse at center, transparent 62%, oklch(0.08 0.03 300 / 0.55) 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .crt {
+    animation: crt-flicker 6s steps(1) infinite;
+  }
+}
+
+@keyframes crt-flicker {
+  0%,
+  96%,
+  100% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 0.86;
+  }
+  98% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 0.92;
+  }
+}
+
+.blink {
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------ 4K world -- */
+
+/* Film grain: a tiny fractal-noise SVG, multiplied over everything. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+[data-theme='light'] .grain {
+  opacity: 0.035;
+}
+
+/* ------------------------------------------------------- scroll reveal -- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 500ms var(--ease-out-quint),
+      transform 500ms var(--ease-out-quint);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .js[data-mode='8bit'] [data-reveal] {
+    transition-timing-function: steps(3, end);
+    transition-duration: 300ms;
+  }
+
+  .js [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------- mode transition -- */
+
+/*
+ * The mode switch runs inside `document.startViewTransition`. Going retro, the
+ * new frame wipes in top-down in hard 8-row steps like a CRT redraw; going 4K,
+ * it opens as a smooth circle from the button that was pressed.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.vt-to-8bit::view-transition-new(root) {
+  animation: vt-wipe 420ms steps(8, end) both;
+}
+
+html.vt-to-4k::view-transition-new(root) {
+  animation: vt-iris 700ms var(--ease-out-quint) both;
+}
+
+@keyframes vt-wipe {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes vt-iris {
+  from {
+    clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0%));
+  }
+  to {
+    clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 0%));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .blink {
+    animation: none;
+  }
+}

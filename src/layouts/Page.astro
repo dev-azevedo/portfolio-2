@@ -1,0 +1,33 @@
+---
+import Base from './Base.astro'
+import Footer from '@/components/Footer.astro'
+import Header from '@/components/Header.astro'
+import About from '@/sections/About.astro'
+import Contact from '@/sections/Contact.astro'
+import Experience from '@/sections/Experience.astro'
+import Hero from '@/sections/Hero.astro'
+import Projects from '@/sections/Projects.astro'
+import Skills from '@/sections/Skills.astro'
+import { messages } from '@/i18n'
+import type { Locale } from '@/types/content'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = messages[locale]
+---
+
+<Base locale={locale}>
+  <Header t={t} locale={locale} />
+  <main id="main" tabindex="-1">
+    <Hero locale={locale} />
+    <Experience locale={locale} />
+    <Projects locale={locale} />
+    <Skills locale={locale} />
+    <About locale={locale} />
+    <Contact locale={locale} />
+  </main>
+  <Footer locale={locale} />
+</Base>

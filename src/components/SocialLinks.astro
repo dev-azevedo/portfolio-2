@@ -1,0 +1,85 @@
+---
+import Icon from './Icon.astro'
+import { socials } from '@/data/socials'
+import { useI18n } from '@/i18n'
+import type { Locale, SocialLink } from '@/types/content'
+
+interface Props {
+  locale: Locale
+  /** Which links to show, in order. Defaults to all. */
+  only?: SocialLink['id'][]
+}
+
+const { locale, only } = Astro.props
+const { t, l } = useI18n(locale)
+const links = only ? only.flatMap((id) => socials.filter((s) => s.id === id)) : socials
+---
+
+<ul class="socials">
+  {
+    links.map((link) => (
+      <li>
+        <a
+          href={link.href}
+          class="social"
+          {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          <Icon name={link.icon} />
+          <span class="sr-only">
+            {l(link.a11yLabel)}
+            {link.external && ` ${t.a11y.newTab}`}
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .socials {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .social {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--fg-2);
+    border-radius: var(--radius-pill);
+    transition:
+      color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  .social :global(.icon) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  :global([data-mode='4k']) .social {
+    border: var(--border);
+  }
+
+  :global([data-mode='8bit']) .social {
+    background: var(--bg-raised);
+    margin: 4px;
+    box-shadow:
+      0 -4px 0 0 var(--line),
+      0 4px 0 0 var(--line),
+      -4px 0 0 0 var(--line),
+      4px 0 0 0 var(--line);
+  }
+
+  @media (hover: hover) {
+    .social:hover {
+      color: var(--accent);
+      background: var(--bg-raised);
+    }
+    :global([data-mode='8bit']) .social:hover {
+      transform: translateY(-4px);
+    }
+  }
+</style>

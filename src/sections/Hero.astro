@@ -1,0 +1,424 @@
+---
+import { Image, getImage } from 'astro:assets'
+
+import SocialLinks from '@/components/SocialLinks.astro'
+import portrait from '@/assets/images/portrait.jpg'
+import { experience } from '@/data/experience'
+import { useI18n } from '@/i18n'
+import type { Locale } from '@/types/content'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const { t, l } = useI18n(locale)
+
+const career = experience.find((item) => item.kind !== 'freelance')!
+const currentRole = l(career.roles[0]!.title)
+const level = career.roles.length
+const firstYear = career.roles.at(-1)!.startDate.slice(0, 4)
+
+// 8-BIT renders a genuinely low-res copy scaled up with nearest-neighbour —
+// real pixels, not a CSS mosaic filter.
+const sprite = await getImage({ src: portrait, width: 76, format: 'png' })
+---
+
+<section id="top" class="hero" aria-labelledby="hero-name">
+  <div class="sky only-4k" aria-hidden="true"></div>
+
+  <div class="container hud only-8bit" aria-hidden="true">
+    <span>1UP <b>{firstYear}</b></span>
+    <span>{t.game.hiScore} <b>{new Date().getFullYear()}</b></span>
+    <span>{t.game.level} <b>{String(level).padStart(2, '0')}</b></span>
+  </div>
+
+  <div class="container grid">
+    <div class="copy">
+      <p class="kicker" data-reveal>
+        <span class="only-8bit">{t.game.player} ·</span>{' '}
+        <span>{t.hero.eyebrow}</span>
+      </p>
+
+      <h1 id="hero-name" data-reveal style="--reveal-delay: 60ms">
+        <span>Jhonatan</span>{' '}
+        <span>Azevedo</span>
+      </h1>
+
+      <p class="role" data-reveal style="--reveal-delay: 120ms">
+        <span class="lv">{t.game.level} {level}</span>{' '}
+        {currentRole}
+      </p>
+
+      <p class="deck" data-reveal style="--reveal-delay: 180ms">{t.hero.deck}</p>
+      <p class="stack" data-reveal style="--reveal-delay: 220ms">{t.hero.stack}</p>
+
+      <div class="actions" data-reveal style="--reveal-delay: 260ms">
+        <a href="#experience" class="btn btn-primary">
+          <span class="only-8bit"><span class="blink" aria-hidden="true">▶</span> {t.game.pressStart}</span>
+          <span class="only-4k">{t.hero.ctaPrimary}</span>
+        </a>
+        <a href="#contact" class="btn">{t.hero.ctaSecondary}</a>
+        <SocialLinks locale={locale} only={['linkedin', 'github']} />
+      </div>
+    </div>
+
+    <figure class="portrait" data-reveal style="--reveal-delay: 120ms">
+      <div class="frame-8 panel only-8bit">
+        <img
+          src={sprite.src}
+          width={sprite.attributes.width}
+          height={sprite.attributes.height}
+          alt={t.hero.portraitAlt}
+          class="sprite"
+          decoding="async"
+        />
+        <figcaption class="plate">
+          <span>JHONATAN</span>
+          <span class="hp" aria-hidden="true">
+            HP <i style="--fill: 100%"></i>
+          </span>
+          <span class="hp" aria-hidden="true">
+            {t.game.exp} <i style="--fill: 72%; --bar: var(--c-sky)"></i>
+          </span>
+        </figcaption>
+      </div>
+
+      <div class="frame-4k only-4k">
+        <Image
+          src={portrait}
+          alt={t.hero.portraitAlt}
+          widths={[480, 720, 960, 1440]}
+          sizes="(min-width: 64rem) 30rem, 80vw"
+          loading="lazy"
+          class="photo"
+        />
+        <figcaption class="chip chip-lv">
+          <span class="chip-k">{t.game.level} {String(level).padStart(2, '0')}</span>
+          <span>{currentRole}</span>
+        </figcaption>
+        <div class="chip chip-exp" aria-hidden="true">
+          <span class="chip-k">{t.game.exp}</span>
+          <span class="meter"><i></i></span>
+          <span>{t.about.facts.tenureValue}</span>
+        </div>
+      </div>
+    </figure>
+  </div>
+
+  <div class="ground only-8bit" aria-hidden="true"></div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-top: calc(var(--header-h) + clamp(2rem, 1rem + 5vw, 5rem));
+    padding-bottom: clamp(4rem, 3rem + 6vw, 8rem);
+    overflow: clip;
+    isolation: isolate;
+  }
+
+  .grid {
+    display: grid;
+    gap: clamp(2.5rem, 2rem + 3vw, 4rem);
+    align-items: center;
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    }
+  }
+
+  .copy .kicker {
+    flex-wrap: wrap;
+    gap: 0.25em 0.75em;
+  }
+
+  .copy {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+
+  h1 {
+    font-size: var(--text-display);
+    display: grid;
+  }
+
+  :global([data-mode='8bit']) h1 {
+    color: var(--fg);
+    text-shadow:
+      4px 4px 0 var(--c-violet),
+      8px 8px 0 var(--c-shadow);
+    line-height: 1.25;
+  }
+
+  :global([data-mode='8bit']) h1 span:last-child {
+    color: var(--accent);
+  }
+
+  :global([data-mode='4k']) h1 {
+    font-weight: 750;
+    font-variation-settings: 'wdth' 90;
+  }
+
+  :global([data-mode='4k']) h1 span:last-child {
+    color: var(--fg-muted);
+    font-weight: 300;
+    font-style: italic;
+    margin-left: 0.6em;
+  }
+
+  .role {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: var(--text-lead);
+    color: var(--fg);
+  }
+
+  :global([data-mode='4k']) .role {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+
+  .lv {
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    background: var(--ok);
+    color: var(--c-night);
+  }
+
+  :global([data-mode='4k']) .lv {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklch, var(--ok) 18%, transparent);
+    color: var(--ok);
+    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--ok) 35%, transparent);
+  }
+
+  .deck {
+    max-width: 38rem;
+    color: var(--fg-2);
+    font-size: var(--text-lead);
+  }
+
+  :global([data-mode='4k']) .deck {
+    line-height: 1.5;
+  }
+
+  .stack {
+    font-family: var(--font-mono);
+    color: var(--fg-muted);
+    font-size: var(--text-sm);
+    max-width: 38rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  /* --- 8-BIT HUD + ground --- */
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    color: var(--fg-muted);
+    margin-bottom: clamp(2rem, 1rem + 4vw, 4rem);
+  }
+
+  .hud b {
+    color: var(--fg);
+    font-weight: 400;
+    margin-left: 0.5em;
+  }
+
+  .ground {
+    position: absolute;
+    inset: auto 0 0;
+    height: 48px;
+    z-index: -1;
+    image-rendering: pixelated;
+    background:
+      linear-gradient(var(--c-mint) 0 8px, var(--c-mint-lo) 8px 12px, transparent 12px),
+      repeating-linear-gradient(
+        90deg,
+        var(--c-gold-lo) 0 30px,
+        var(--c-shadow) 30px 32px
+      ),
+      var(--c-gold-lo);
+    background-size:
+      100% 100%,
+      32px 100%,
+      100% 100%;
+    box-shadow: inset 0 16px 0 0 transparent;
+  }
+
+  .ground::after {
+    content: '';
+    position: absolute;
+    inset: 12px 0 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0 16px,
+      var(--c-shadow) 16px 18px
+    );
+    opacity: 0.6;
+  }
+
+  /* --- portrait --- */
+
+  .portrait {
+    justify-self: center;
+    width: min(100%, 22rem);
+  }
+
+  @media (min-width: 64rem) {
+    .portrait {
+      justify-self: end;
+      width: min(100%, 26rem);
+    }
+  }
+
+  .frame-8 {
+    padding: 12px;
+    background: var(--bg-sunken);
+    --panel-line: var(--c-lilac);
+  }
+
+  .sprite {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  .plate {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 0.875rem;
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    color: var(--fg);
+  }
+
+  .hp {
+    display: grid;
+    grid-template-columns: 3.5em 1fr;
+    align-items: center;
+    color: var(--fg-muted);
+  }
+
+  .hp i {
+    height: 12px;
+    background:
+      linear-gradient(90deg, var(--bar, var(--c-mint)) var(--fill), transparent var(--fill)),
+      var(--c-shadow);
+    box-shadow:
+      inset 0 -4px 0 0 oklch(0 0 0 / 0.25),
+      0 0 0 4px var(--c-plum);
+  }
+
+  /* 4K portrait */
+
+  .sky {
+    position: absolute;
+    inset: -20% -10% auto;
+    height: 120%;
+    z-index: -1;
+    background:
+      radial-gradient(40% 50% at 78% 30%, color-mix(in oklch, var(--accent) 38%, transparent), transparent 70%),
+      radial-gradient(30% 40% at 92% 70%, color-mix(in oklch, var(--accent-2) 22%, transparent), transparent 70%),
+      radial-gradient(35% 35% at 10% 10%, color-mix(in oklch, var(--accent) 12%, transparent), transparent 70%);
+    filter: blur(20px);
+  }
+
+  .frame-4k {
+    position: relative;
+  }
+
+  .photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: calc(var(--radius) * 1.6);
+    box-shadow: var(--shadow-lg);
+    outline: 1px solid var(--line);
+    outline-offset: -1px;
+  }
+
+  .chip {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--fg);
+    background: color-mix(in oklch, var(--bg-raised) 72%, transparent);
+    backdrop-filter: blur(16px) saturate(1.6);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    border: var(--border);
+    border-radius: 0.875rem;
+    box-shadow: var(--shadow);
+  }
+
+  .chip-k {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .chip-lv {
+    left: -1.5rem;
+    bottom: 2.5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  .chip-exp {
+    right: -1rem;
+    top: 2rem;
+  }
+
+  .meter {
+    width: 3.5rem;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--line-strong);
+    overflow: hidden;
+  }
+
+  .meter i {
+    display: block;
+    width: 72%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+
+  @media (max-width: 40rem) {
+    .chip-lv {
+      left: 0.75rem;
+    }
+    .chip-exp {
+      right: 0.75rem;
+    }
+  }
+</style>

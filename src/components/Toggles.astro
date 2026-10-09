@@ -1,0 +1,124 @@
+---
+import Icon from './Icon.astro'
+import { localePath, type Messages } from '@/i18n'
+import type { Locale } from '@/types/content'
+
+interface Props {
+  t: Messages
+  locale: Locale
+}
+
+const { t, locale } = Astro.props
+const langs = [
+  { code: 'pt-BR', short: 'PT' },
+  { code: 'en', short: 'EN' },
+] as const
+---
+
+<div class="toggles">
+  <nav class="lang" aria-label={t.lang.group}>
+    {
+      langs.map((lang) => (
+        <a
+          href={localePath(lang.code)}
+          hreflang={lang.code}
+          lang={lang.code}
+          data-locale-link={lang.code}
+          aria-current={lang.code === locale ? 'true' : undefined}
+        >
+          {lang.short}
+        </a>
+      ))
+    }
+  </nav>
+
+  <button
+    type="button"
+    class="tool only-4k"
+    data-theme-toggle
+    data-label-dark={t.theme.toDark}
+    data-label-light={t.theme.toLight}
+    aria-label={t.theme.toLight}
+  >
+    <Icon name="lucide:sun" class="when-dark" />
+    <Icon name="lucide:moon" class="when-light" />
+  </button>
+
+  <button
+    type="button"
+    class="tool only-8bit"
+    data-sound-toggle
+    data-label-on={t.sound.on}
+    data-label-off={t.sound.off}
+    aria-label={t.sound.on}
+    aria-pressed="false"
+  >
+    <Icon name="lucide:volume-2" class="when-on" />
+    <Icon name="lucide:volume-x" class="when-off" />
+  </button>
+</div>
+
+<style>
+  .toggles {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .lang {
+    display: flex;
+    gap: 2px;
+  }
+
+  .lang a,
+  .tool {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    color: var(--fg-muted);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    border-radius: var(--radius-pill);
+    transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+
+  :global([data-mode='4k']) .lang a {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .lang a[aria-current='true'] {
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.35em;
+    text-decoration-color: var(--accent);
+  }
+
+  @media (hover: hover) {
+    .lang a:hover,
+    .tool:hover {
+      color: var(--fg);
+      background: var(--bg-raised);
+    }
+  }
+
+  .tool :global(.icon) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  :global([data-theme='dark']) .tool :global(.when-light),
+  :global([data-theme='light']) .tool :global(.when-dark),
+  :global([data-sound='on']) .tool :global(.when-off),
+  :global(html:not([data-sound='on'])) .tool :global(.when-on) {
+    display: none;
+  }
+
+  :global([data-sound='on']) [data-sound-toggle] {
+    color: var(--accent);
+  }
+</style>

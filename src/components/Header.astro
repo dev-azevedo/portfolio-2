@@ -1,0 +1,324 @@
+---
+import Icon from './Icon.astro'
+import ModeSwitch from './ModeSwitch.astro'
+import Toggles from './Toggles.astro'
+import { navItems } from '@/data/navigation'
+import type { Messages } from '@/i18n'
+import type { Locale } from '@/types/content'
+
+interface Props {
+  t: Messages
+  locale: Locale
+}
+
+const { t, locale } = Astro.props
+---
+
+<header class="header">
+  <div class="container bar">
+    <a href="#top" class="logo" aria-label={t.nav.homeLabel}>
+      <span class="only-8bit pixel-logo" aria-hidden="true">JA</span>
+      <span class="only-4k hd-logo" aria-hidden="true">JA<i>.</i></span>
+    </a>
+
+    <nav class="nav" aria-label={t.nav.primary}>
+      <ul>
+        {
+          navItems.map((item) => (
+            <li>
+              <a href={item.href} data-nav-link>
+                <span class="cursor only-8bit" aria-hidden="true">
+                  ▶
+                </span>
+                {t.nav.items[item.id]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="end">
+      <ModeSwitch t={t} />
+      <div class="desktop-only">
+        <Toggles t={t} locale={locale} />
+      </div>
+      <button type="button" class="menu-btn" data-nav-open aria-label={t.nav.open}>
+        <Icon name="lucide:menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog id="nav-sheet" class="sheet" aria-label={t.nav.primary}>
+  <div class="sheet-inner panel">
+    <div class="sheet-top">
+      <span class="kicker">MENU</span>
+      <button type="button" class="menu-btn" data-nav-close aria-label={t.nav.close}>
+        <Icon name="lucide:x" />
+      </button>
+    </div>
+    <ul class="sheet-links">
+      {
+        navItems.map((item) => (
+          <li>
+            <a href={item.href} data-nav-link>
+              <span class="cursor only-8bit" aria-hidden="true">
+                ▶
+              </span>
+              {t.nav.items[item.id]}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <Toggles t={t} locale={locale} />
+  </div>
+</dialog>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    padding-top: env(safe-area-inset-top);
+    background: color-mix(in oklch, var(--bg) 82%, transparent);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  :global([data-mode='8bit']) .header {
+    background: var(--bg-sunken);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 4px solid var(--line);
+  }
+
+  .bar {
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .logo {
+    color: var(--fg);
+    text-decoration: none;
+    flex: none;
+  }
+
+  .pixel-logo {
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.75rem;
+    background: var(--c-violet);
+    color: var(--c-night);
+    box-shadow:
+      inset -4px -4px 0 0 #6a42cf,
+      inset 4px 4px 0 0 var(--c-violet-hi);
+  }
+
+  .hd-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+  }
+
+  .hd-logo i {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .nav {
+    margin-inline: auto;
+    display: none;
+  }
+
+  .nav ul {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .nav a,
+  .sheet-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.5rem 0.75rem;
+    color: var(--fg-2);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    border-radius: var(--radius-pill);
+    transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+
+  :global([data-mode='8bit']) .nav a {
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    padding-inline: 0.5rem;
+  }
+
+  :global([data-mode='4k']) .nav a {
+    font-weight: 500;
+  }
+
+  .cursor {
+    visibility: hidden;
+    color: var(--accent);
+    font-size: 0.8em;
+  }
+
+  .nav a[aria-current='true'],
+  .sheet-links a[aria-current='true'] {
+    color: var(--fg);
+  }
+
+  .nav a[aria-current='true'] .cursor,
+  .sheet-links a[aria-current='true'] .cursor {
+    visibility: visible;
+  }
+
+  :global([data-mode='4k']) .nav a[aria-current='true'] {
+    background: var(--bg-raised);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  @media (hover: hover) {
+    .nav a:hover {
+      color: var(--fg);
+    }
+    .nav a:hover .cursor {
+      visibility: visible;
+    }
+  }
+
+  .end {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .menu-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--fg);
+    border-radius: var(--radius-pill);
+  }
+
+  .menu-btn :global(.icon) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  @media (min-width: 64rem) {
+    .nav {
+      display: block;
+    }
+    .end {
+      margin-left: 0;
+    }
+    .desktop-only {
+      display: block;
+    }
+    .header .menu-btn {
+      display: none;
+    }
+  }
+
+  /* --- sheet --- */
+
+  .sheet {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: calc(env(safe-area-inset-top) + 0.75rem) var(--gutter) 0;
+    background: transparent;
+    color: var(--fg);
+    border: 0;
+  }
+
+  .sheet::backdrop {
+    background: oklch(0.1 0.03 300 / 0.6);
+    opacity: 0;
+    transition:
+      opacity 240ms var(--ease-out-quint),
+      display 240ms allow-discrete,
+      overlay 240ms allow-discrete;
+  }
+
+  .sheet[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .sheet[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  .sheet-inner {
+    padding: 1.25rem;
+    display: grid;
+    gap: 1.25rem;
+    transform: translateY(-12px);
+    opacity: 0;
+    transition:
+      transform 280ms var(--ease-out-quint),
+      opacity 280ms var(--ease-out-quint);
+  }
+
+  .sheet[open] .sheet-inner {
+    transform: none;
+    opacity: 1;
+  }
+
+  @starting-style {
+    .sheet[open] .sheet-inner {
+      transform: translateY(-12px);
+      opacity: 0;
+    }
+  }
+
+  :global([data-mode='8bit']) .sheet-inner {
+    transition-timing-function: steps(3, end);
+  }
+
+  .sheet-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sheet-links {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .sheet-links a {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    padding-inline: 0.25rem;
+  }
+
+  :global([data-mode='8bit']) .sheet-links a {
+    font-size: 0.875rem;
+    padding-block: 0.875rem;
+  }
+
+  :global(html:has(dialog[open])) {
+    overflow: hidden;
+  }
+</style>

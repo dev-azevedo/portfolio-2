@@ -1,0 +1,35 @@
+---
+import { getIconData, iconToHTML, iconToSVG, replaceIDs } from '@iconify/utils'
+import lucide from '@iconify-json/lucide/icons.json'
+import simpleIcons from '@iconify-json/simple-icons/icons.json'
+
+import type { IconName } from '@/types/content'
+import type { IconifyJSON } from '@iconify/types'
+
+interface Props {
+  name: IconName
+  class?: string
+  /** Accessible name. Omit for decorative icons next to visible text. */
+  label?: string
+}
+
+const { name, class: className, label } = Astro.props
+const sets: Record<string, IconifyJSON> = {
+  lucide: lucide as IconifyJSON,
+  'simple-icons': simpleIcons as IconifyJSON,
+}
+
+const [prefix, iconName] = name.split(':') as [string, string]
+const data = getIconData(sets[prefix]!, iconName)
+if (!data) throw new Error(`Unknown icon: ${name}`)
+
+const { attributes, body } = iconToSVG(data, { height: '1em' })
+const svg = iconToHTML(replaceIDs(body), {
+  ...attributes,
+  class: ['icon', className].filter(Boolean).join(' '),
+  ...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }),
+  focusable: 'false',
+})
+---
+
+<Fragment set:html={svg} />

@@ -1,0 +1,43 @@
+---
+import Base from '@/layouts/Base.astro'
+import { messages } from '@/i18n'
+
+// Netlify serves this for any unknown path; pt-BR is the site default.
+const t = messages['pt-BR']
+const en = messages.en
+---
+
+<Base locale="pt-BR" title={t.meta.notFoundTitle} noindex>
+  <main id="main" class="lost container">
+    <p class="kicker">
+      <span class="only-8bit">GAME OVER</span>
+      <span class="only-4k">404</span>
+    </p>
+    <h1>{t.meta.notFoundTitle}</h1>
+    <p class="body">{t.meta.notFoundBody}</p>
+    <p class="body" lang="en">{en.meta.notFoundBody}</p>
+    <a href="/" class="btn btn-primary">
+      <span class="only-8bit blink" aria-hidden="true">▶</span>
+      {t.meta.notFoundCta}
+    </a>
+  </main>
+</Base>
+
+<style>
+  .lost {
+    min-height: 100dvh;
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 1.25rem;
+  }
+
+  h1 {
+    font-size: var(--text-h2);
+  }
+
+  .body {
+    color: var(--fg-2);
+    max-width: var(--prose-max);
+  }
+</style>

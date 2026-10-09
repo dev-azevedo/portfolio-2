@@ -1,0 +1,139 @@
+---
+import Icon from './Icon.astro'
+import type { Skill } from '@/types/content'
+
+interface Props {
+  skill: Skill
+  /** `slot` = square inventory tile, `chip` = inline pill. */
+  variant?: 'chip' | 'slot'
+}
+
+const { skill, variant = 'chip' } = Astro.props
+const style = skill.color
+  ? `--brand-light: ${skill.color.light}; --brand-dark: ${skill.color.dark}`
+  : undefined
+---
+
+<span class:list={['tech', variant]} style={style}>
+  {
+    skill.icon ? (
+      <Icon name={skill.icon} class="tech-icon" />
+    ) : (
+      <span class="tech-icon mono" aria-hidden="true">
+        {skill.monogram}
+      </span>
+    )
+  }
+  <span class="tech-name">{skill.name}</span>
+</span>
+
+<style>
+  .tech {
+    --brand: var(--brand-dark, var(--fg));
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--fg-2);
+    line-height: 1.1;
+  }
+
+  :global([data-mode='4k'][data-theme='light']) .tech {
+    --brand: var(--brand-light, var(--fg));
+  }
+
+  .tech :global(.tech-icon) {
+    color: var(--brand);
+    width: 1.125em;
+    height: 1.125em;
+  }
+
+  .mono {
+    display: inline-grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    font-weight: 700;
+    border: 1.5px solid currentColor;
+    border-radius: 3px;
+  }
+
+  /* chip */
+  .chip {
+    font-size: var(--text-xs);
+    padding: 0.3125rem 0.625rem;
+    background: var(--bg-sunken);
+    border-radius: var(--radius-pill);
+  }
+
+  :global([data-mode='4k']) .chip {
+    border: var(--border);
+    font-weight: 500;
+  }
+
+  :global([data-mode='8bit']) .chip {
+    font-size: var(--text-sm);
+    padding: 0.125rem 0.5rem;
+  }
+
+  /* slot */
+  .slot {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 6.5rem;
+    padding: 0.875rem 0.5rem;
+    text-align: center;
+    font-size: var(--text-sm);
+    background: var(--bg-sunken);
+    border-radius: calc(var(--radius) * 0.75);
+    transition:
+      transform var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+
+  .slot :global(.tech-icon) {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .slot .mono {
+    font-size: 0.875rem;
+    border-width: 2px;
+  }
+
+  :global([data-mode='8bit']) .slot {
+    margin: 4px;
+    box-shadow:
+      inset 4px 4px 0 0 var(--c-shadow),
+      inset -4px -4px 0 0 var(--c-dusk),
+      0 -4px 0 0 var(--line),
+      0 4px 0 0 var(--line),
+      -4px 0 0 0 var(--line),
+      4px 0 0 0 var(--line);
+  }
+
+  :global([data-mode='8bit']) .slot :global(.tech-icon) {
+    /* Hard-edged silhouettes read as sprites. */
+    filter: drop-shadow(3px 3px 0 var(--c-shadow));
+  }
+
+  :global([data-mode='4k']) .slot {
+    border: var(--border);
+    font-weight: 500;
+  }
+
+  @media (hover: hover) {
+    .slot:hover {
+      color: var(--fg);
+      background: var(--bg-raised);
+    }
+    :global([data-mode='8bit']) .slot:hover {
+      transform: translateY(-4px);
+    }
+    :global([data-mode='4k']) .slot:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+  }
+</style>

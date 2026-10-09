@@ -1,0 +1,29 @@
+.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Raw app screenshots (contain personal data); curated copies live in src/assets/images/_source
+portfolio-prints-adotevlapp/
+
+# Raw Banco de Horas screenshots (real employee data)
+portfolio-standbymarcenaria/

@@ -1,0 +1,157 @@
+---
+import '@fontsource/press-start-2p/latin-400.css'
+import '@fontsource/vt323/latin-400.css'
+import '@fontsource/vt323/latin-ext-400.css'
+import '@fontsource-variable/bricolage-grotesque/wght.css'
+import '@fontsource-variable/instrument-sans/wght.css'
+import '@fontsource-variable/jetbrains-mono/wght.css'
+import '@/styles/global.css'
+
+import { getImage } from 'astro:assets'
+import pressStart from '@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2?url'
+import vt323 from '@fontsource/vt323/files/vt323-latin-400-normal.woff2?url'
+
+import portrait from '@/assets/images/portrait.jpg'
+import { experience } from '@/data/experience'
+import { SITE_NAME, profileJsonLd } from '@/data/seo'
+import { LOCALES, localePath, useI18n } from '@/i18n'
+import type { Locale } from '@/types/content'
+
+interface Props {
+  locale: Locale
+  /** Overrides the default "Name — Role" title. */
+  title?: string
+  /** Pages that must stay out of the index (404). */
+  noindex?: boolean
+}
+
+const { locale, title: titleOverride, noindex = false } = Astro.props
+const { t, l } = useI18n(locale)
+
+const role = l(experience[0]!.roles[0]!.title)
+const title = titleOverride ? `${titleOverride} — ${SITE_NAME}` : `${SITE_NAME} — ${role}`
+const description = t.meta.description
+
+const site = Astro.site ?? new URL(Astro.url.origin)
+const canonical = new URL(localePath(locale), site).href
+const alternates = LOCALES.map((code) => ({ code, href: new URL(localePath(code), site).href }))
+const ogImage = new URL('/og.jpg', site).href
+const ogLocale = (code: Locale) => (code === 'en' ? 'en_US' : 'pt_BR')
+
+const avatar = await getImage({ src: portrait, width: 720, format: 'jpg' })
+const jsonLd = noindex ? null : profileJsonLd(locale, site, new URL(avatar.src, site).href)
+---
+
+<!doctype html>
+<html lang={locale} data-mode="8bit" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#1d1636" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE_NAME} />
+    <meta
+      name="robots"
+      content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'}
+    />
+    {
+      !noindex && (
+        <>
+          <link rel="canonical" href={canonical} />
+          {alternates.map((alt) => (
+            <link rel="alternate" hreflang={alt.code} href={alt.href} />
+          ))}
+          <link rel="alternate" hreflang="x-default" href={alternates[0]!.href} />
+          <link rel="sitemap" href="/sitemap-index.xml" />
+        </>
+      )
+    }
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Default skin is 8-BIT: fetch its two faces before CSS discovers them. -->
+    <link rel="preload" href={pressStart} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={vt323} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={ogLocale(locale)} />
+    {
+      LOCALES.filter((code) => code !== locale).map((code) => (
+        <meta property="og:locale:alternate" content={ogLocale(code)} />
+      ))
+    }
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.ogImageAlt} />
+    <meta property="profile:first_name" content="Jhonatan" />
+    <meta property="profile:last_name" content="Azevedo" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={t.meta.ogImageAlt} />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+    <!--
+      Synchronous and inline, before first paint: applies the stored mode and
+      theme so the page never flashes the wrong skin.
+    -->
+    <script is:inline>
+      ;(function () {
+        var root = document.documentElement
+        root.classList.add('js')
+        try {
+          // ?mode=4k|8bit makes a skin linkable; it also becomes the stored choice.
+          var param = new URLSearchParams(location.search).get('mode')
+          if (param === '4k' || param === '8bit') localStorage.setItem('mode', param)
+          var mode = localStorage.getItem('mode') === '4k' ? '4k' : '8bit'
+          var pref = localStorage.getItem('theme')
+          var dark =
+            pref === 'dark' ||
+            (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          root.dataset.mode = mode
+          root.dataset.theme = dark ? 'dark' : 'light'
+          var color = mode === '8bit' ? '#1d1636' : dark ? '#17151c' : '#fbfafc'
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', color)
+          if (localStorage.getItem('sound') === 'on') root.dataset.sound = 'on'
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <a class="skip-link btn btn-primary" href="#main">{t.a11y.skip}</a>
+    <slot />
+    <div class="crt only-8bit" aria-hidden="true"></div>
+    <div class="grain only-4k" aria-hidden="true"></div>
+
+    <script>
+      import '@/scripts/app'
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 200;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus-visible {
+    transform: none;
+  }
+</style>

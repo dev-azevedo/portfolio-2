@@ -1,0 +1,65 @@
+---
+import SocialLinks from './SocialLinks.astro'
+import { useI18n } from '@/i18n'
+import type { Locale } from '@/types/content'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const { t } = useI18n(locale)
+const year = new Date().getFullYear()
+---
+
+<footer class="footer">
+  <div class="container bar">
+    <p class="credits">
+      <span class="only-8bit tag" aria-hidden="true">{t.game.credits}</span>
+      <span>{t.footer.builtBy}</span>
+      <span class="year">© {year}</span>
+    </p>
+    <nav aria-label={t.footer.links}>
+      <SocialLinks locale={locale} />
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    padding-block: 2rem calc(2rem + env(safe-area-inset-bottom));
+  }
+
+  :global([data-mode='8bit']) .footer {
+    border-top: 4px solid var(--line);
+    background: var(--bg-sunken);
+  }
+
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .credits {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--fg-muted);
+    font-size: var(--text-sm);
+  }
+
+  .tag {
+    font-family: var(--font-display);
+    font-size: 0.5625rem;
+    color: var(--accent);
+  }
+
+  .year {
+    font-family: var(--font-mono);
+  }
+</style>

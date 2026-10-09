@@ -1,0 +1,379 @@
+---
+import Icon from '@/components/Icon.astro'
+import ProjectCard from '@/components/ProjectCard.astro'
+import SectionHeading from '@/components/SectionHeading.astro'
+import { projects } from '@/data/projects'
+import { GITHUB_URL } from '@/data/socials'
+import { useI18n } from '@/i18n'
+import type { Locale } from '@/types/content'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const { t } = useI18n(locale)
+---
+
+<section id="projects" class="section" aria-labelledby="projects-heading">
+  <div class="container">
+    <SectionHeading
+      t={t}
+      stage={2}
+      stageName={t.game.stages.projects}
+      heading={t.projects.heading}
+      headingId="projects-heading"
+      deck={t.projects.deck}
+    />
+
+    <div class="grid">
+      {
+        projects.map((project, index) => (
+          <ProjectCard project={project} locale={locale} slotNumber={index + 1} featured={index === 0} />
+        ))
+      }
+
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="more panel" data-reveal>
+        <span class="more-slot only-8bit" aria-hidden="true">
+          {t.game.slot}
+          {projects.length + 1} · {t.game.insert}
+          <span class="blink">_</span>
+        </span>
+        <Icon name="simple-icons:github" class="more-icon" />
+        <span class="more-text">
+          <span class="more-title">{t.projects.moreTitle}</span>
+          <span class="more-body">{t.projects.moreBody}</span>
+        </span>
+        <Icon name="lucide:arrow-up-right" class="more-arrow" />
+        <span class="sr-only">{t.a11y.newTab}</span>
+      </a>
+    </div>
+  </div>
+
+  <dialog class="lightbox" data-lightbox aria-label={t.projects.galleryLabel}>
+    <div class="lb-inner">
+      <div class="lb-top">
+        <p class="lb-count" data-lb-count data-template={t.projects.screenOf}></p>
+        <button type="button" class="lb-btn" data-lb-close aria-label={t.projects.close}>
+          <Icon name="lucide:x" />
+        </button>
+      </div>
+      <figure class="lb-figure">
+        <!-- The <img> is created on first open: an empty src is invalid HTML. -->
+        <div class="lb-slot" data-lb-slot></div>
+        <figcaption data-lb-caption></figcaption>
+      </figure>
+      <div class="lb-nav">
+        <button type="button" class="lb-btn" data-lb-prev aria-label={t.projects.prev}>
+          <Icon name="lucide:chevron-left" />
+        </button>
+        <button type="button" class="lb-btn" data-lb-next aria-label={t.projects.next}>
+          <Icon name="lucide:chevron-right" />
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<script>
+  import { play } from '@/scripts/sound'
+
+  interface Frame {
+    src: string
+    width: number
+    height: number
+    alt: string
+  }
+
+  const fill = (template: string, n: number, total: number) =>
+    template.replace('{n}', String(n)).replace('{total}', String(total))
+
+  /* --- in-card carousel --- */
+
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((card) => {
+    const frames = [...card.querySelectorAll<HTMLElement>('[data-frame]')]
+    const count = card.querySelector<HTMLElement>('[data-count]')
+    let index = 0
+
+    const show = (next: number) => {
+      index = (next + frames.length) % frames.length
+      frames.forEach((frame, i) => frame.classList.toggle('is-active', i === index))
+      if (count) {
+        const [visual, spoken] = count.children as unknown as [HTMLElement, HTMLElement]
+        visual.textContent = `${index + 1}/${frames.length}`
+        spoken.textContent = fill(count.dataset.template!, index + 1, frames.length)
+      }
+    }
+
+    card.querySelector('[data-prev]')?.addEventListener('click', () => show(index - 1))
+    card.querySelector('[data-next]')?.addEventListener('click', () => show(index + 1))
+    card.querySelector('[data-open]')?.addEventListener('click', () => {
+      openLightbox(JSON.parse(card.dataset.gallery!) as Frame[], index)
+    })
+  })
+
+  /* --- lightbox --- */
+
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]')!
+  const img = document.createElement('img')
+  img.decoding = 'async'
+  dialog.querySelector('[data-lb-slot]')!.replaceWith(img)
+  const caption = dialog.querySelector<HTMLElement>('[data-lb-caption]')!
+  const counter = dialog.querySelector<HTMLElement>('[data-lb-count]')!
+  let frames: Frame[] = []
+  let current = 0
+
+  function render() {
+    const frame = frames[current]!
+    img.src = frame.src
+    img.width = frame.width
+    img.height = frame.height
+    img.alt = frame.alt
+    caption.textContent = frame.alt
+    counter.textContent = fill(counter.dataset.template!, current + 1, frames.length)
+  }
+
+  function step(delta: number) {
+    current = (current + delta + frames.length) % frames.length
+    render()
+    play('blip')
+  }
+
+  function openLightbox(list: Frame[], start: number) {
+    frames = list
+    current = start
+    render()
+    dialog.showModal()
+  }
+
+  dialog.querySelector('[data-lb-close]')!.addEventListener('click', () => dialog.close())
+  dialog.querySelector('[data-lb-prev]')!.addEventListener('click', () => step(-1))
+  dialog.querySelector('[data-lb-next]')!.addEventListener('click', () => step(1))
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close()
+  })
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') step(-1)
+    if (event.key === 'ArrowRight') step(1)
+  })
+  dialog.addEventListener('close', () => play('back'))
+</script>
+
+<style>
+  .grid {
+    display: grid;
+    gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  @media (min-width: 56rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+    .grid > :global(.featured),
+    .more {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* --- GitHub tile --- */
+
+  .more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.25rem;
+    padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+    color: var(--fg);
+    text-decoration: none;
+    background: transparent;
+    transition:
+      background-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+
+  :global([data-mode='8bit']) .more {
+    --panel-line: var(--line);
+    background: var(--bg-sunken);
+  }
+
+  :global([data-mode='4k']) .more {
+    border-style: dashed;
+    border-color: var(--line-strong);
+    box-shadow: none;
+  }
+
+  .more-slot {
+    flex-basis: 100%;
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    color: var(--accent);
+  }
+
+  .more :global(.more-icon) {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .more-text {
+    display: grid;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 12rem;
+  }
+
+  .more-title {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+  }
+
+  :global([data-mode='4k']) .more-title {
+    font-size: 1.375rem;
+    font-weight: 650;
+  }
+
+  .more-body {
+    color: var(--fg-muted);
+  }
+
+  .more :global(.more-arrow) {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--accent);
+    transition: transform var(--dur) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .more:hover {
+      background: var(--bg-raised);
+    }
+    .more:hover :global(.more-arrow) {
+      transform: translate(3px, -3px);
+    }
+  }
+
+  /* --- lightbox --- */
+
+  .lightbox {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--fg);
+  }
+
+  .lightbox::backdrop {
+    background: oklch(0.1 0.03 300 / 0.85);
+    backdrop-filter: blur(8px);
+  }
+
+  :global([data-mode='8bit']) .lightbox::backdrop {
+    backdrop-filter: none;
+    background:
+      repeating-linear-gradient(0deg, oklch(0 0 0 / 0.25) 0 2px, transparent 2px 4px),
+      oklch(0.1 0.04 300 / 0.92);
+  }
+
+  .lb-inner {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 0.75rem;
+    padding: max(1rem, env(safe-area-inset-top)) var(--gutter) max(1rem, env(safe-area-inset-bottom));
+    pointer-events: none;
+  }
+
+  .lb-inner > * {
+    pointer-events: auto;
+  }
+
+  .lb-top,
+  .lb-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .lb-nav {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .lb-count {
+    font-family: var(--font-mono);
+    color: var(--fg-2);
+  }
+
+  :global([data-mode='8bit']) .lb-count {
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+  }
+
+  .lb-btn {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    color: var(--fg);
+    background: var(--bg-raised);
+    border-radius: var(--radius-pill);
+  }
+
+  .lb-btn :global(.icon) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .lb-figure {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    justify-items: center;
+    align-self: center;
+    max-height: 100%;
+  }
+
+  .lb-figure img {
+    max-width: min(100%, 75rem);
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: calc(var(--radius) * 0.6);
+  }
+
+  :global([data-mode='8bit']) .lb-figure img {
+    box-shadow:
+      0 0 0 4px var(--c-paper),
+      0 0 0 8px var(--c-shadow),
+      8px 8px 0 8px var(--c-shadow);
+  }
+
+  .lb-figure figcaption {
+    max-width: 60ch;
+    text-align: center;
+    color: var(--fg-2);
+    font-size: var(--text-sm);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .lightbox[open] .lb-figure {
+      animation: lb-in 320ms var(--ease-out-quint);
+    }
+    :global([data-mode='8bit']) .lightbox[open] .lb-figure {
+      animation-timing-function: steps(4, end);
+    }
+  }
+
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+</style>
