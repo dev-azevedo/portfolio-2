@@ -1,9 +1,12 @@
+import adotevlAdotantesKanbanJpg from '@/assets/images/project-adotevl-adotantes-kanban.jpg'
+import adotevlAgendaJpg from '@/assets/images/project-adotevl-agenda.jpg'
+import adotevlEstoqueJpg from '@/assets/images/project-adotevl-estoque.jpg'
+import adotevlFichaJpg from '@/assets/images/project-adotevl-ficha.jpg'
 import adotevlFinanceiroJpg from '@/assets/images/project-adotevl-financeiro.jpg'
+import adotevlKanbanLightJpg from '@/assets/images/project-adotevl-kanban-light.jpg'
+import adotevlMarketingJpg from '@/assets/images/project-adotevl-marketing.jpg'
 import adotevlMobileJpg from '@/assets/images/project-adotevl-mobile.jpg'
-import adotevlModalJpg from '@/assets/images/project-adotevl-modal.jpg'
 import adotevlPetsJpg from '@/assets/images/project-adotevl-pets.jpg'
-import adotevlPetsLightJpg from '@/assets/images/project-adotevl-pets-light.jpg'
-import adotevlVoluntariosJpg from '@/assets/images/project-adotevl-voluntarios.jpg'
 import salesCrudClientesJpg from '@/assets/images/project-salescrud-clientes.jpg'
 import salesCrudDashboardJpg from '@/assets/images/project-salescrud-dashboard.jpg'
 import salesCrudFormularioJpg from '@/assets/images/project-salescrud-formulario.jpg'
@@ -26,6 +29,91 @@ import type { Project } from '@/types/content'
  * any length.
  */
 export const projects: Project[] = [
+  {
+    id: 'adotevl',
+    title: 'AdoteVL',
+    year: 2026,
+    status: 'live',
+    liveUrl: 'https://adoteapp.netlify.app',
+    stack: ['react', 'typescript', 'tailwind', 'nestjs', 'postgresql'],
+    role: { 'pt-BR': 'Full-stack', en: 'Full-stack' },
+    summary: {
+      'pt-BR':
+        'Sistema de gestão da Associação Adote um Vira-Lata: pets, adoções com kanban e ficha online, agenda, estoque, marketing, voluntários e financeiro. Desenvolvi front-end (React) e back-end (NestJS, PostgreSQL), com autenticação JWT, notificações em tempo real e PWA instalável.',
+      en: 'Management system for the Adote um Vira-Lata shelter: pets, adoptions with a kanban board and online application form, schedule, inventory, marketing, volunteers and finances. I built both the front-end (React) and the back-end (NestJS, PostgreSQL), with JWT authentication, real-time notifications and an installable PWA.',
+    },
+    gallery: [
+      {
+        src: adotevlAdotantesKanbanJpg,
+        alt: {
+          'pt-BR':
+            'Kanban de adotantes do AdoteVL em tema escuro, com colunas Pendente, Aprovado, Aguardando assinatura, Concluída e Reprovado',
+          en: 'AdoteVL adopters kanban in dark theme, with Pending, Approved, Awaiting signature, Completed and Rejected columns',
+        },
+      },
+      {
+        src: adotevlPetsJpg,
+        alt: {
+          'pt-BR':
+            'Tela de Pets do AdoteVL, com cards de cada animal mostrando status de adoção, porte, peso e castração',
+          en: 'AdoteVL Pets screen, with a card per animal showing adoption status, size, weight and neutering',
+        },
+      },
+      {
+        src: adotevlAgendaJpg,
+        alt: {
+          'pt-BR': 'Agenda mensal do AdoteVL, com os turnos de voluntários marcados no calendário',
+          en: 'AdoteVL monthly schedule, with volunteer shifts on the calendar',
+        },
+      },
+      {
+        src: adotevlFichaJpg,
+        alt: {
+          'pt-BR':
+            'Ficha de adoção pública do AdoteVL, formulário em 7 etapas com o pet escolhido em destaque',
+          en: 'AdoteVL public adoption form, a 7-step form with the chosen pet highlighted',
+        },
+      },
+      {
+        src: adotevlEstoqueJpg,
+        alt: {
+          'pt-BR':
+            'Tela de Estoque do AdoteVL, tabela de produtos com tipo, quantidade e vencimento',
+          en: 'AdoteVL Inventory screen, a product table with type, quantity and expiry date',
+        },
+      },
+      {
+        src: adotevlMarketingJpg,
+        alt: {
+          'pt-BR':
+            'Quadro de Marketing do AdoteVL, com cards de conteúdo por rede social em colunas de produção',
+          en: 'AdoteVL Marketing board, with content cards per social network in production columns',
+        },
+      },
+      {
+        src: adotevlFinanceiroJpg,
+        alt: {
+          'pt-BR':
+            'Tela Financeiro do AdoteVL, com saldo, totais de entradas e saídas e tabela de lançamentos',
+          en: 'AdoteVL Finances screen, with balance, income and expense totals and a transactions table',
+        },
+      },
+      {
+        src: adotevlKanbanLightJpg,
+        alt: {
+          'pt-BR': 'Kanban de adotantes do AdoteVL em tema claro',
+          en: 'AdoteVL adopters kanban in light theme',
+        },
+      },
+      {
+        src: adotevlMobileJpg,
+        alt: {
+          'pt-BR': 'Três telas do AdoteVL no celular: pets, agenda e menu lateral',
+          en: 'Three AdoteVL mobile screens: pets, schedule and side menu',
+        },
+      },
+    ],
+  },
   {
     id: 'standby-banco-horas',
     title: 'Banco de Horas',
@@ -94,70 +182,6 @@ export const projects: Project[] = [
         alt: {
           'pt-BR': 'Dashboard do Banco de Horas em tema claro',
           en: 'Banco de Horas dashboard in light theme',
-        },
-      },
-    ],
-  },
-  {
-    id: 'adotevl',
-    title: 'AdoteVL',
-    year: 2026,
-    status: 'live',
-    liveUrl: 'https://adoteapp.netlify.app',
-    stack: ['react', 'typescript', 'tailwind'],
-    role: { 'pt-BR': 'Front-end', en: 'Front-end' },
-    summary: {
-      'pt-BR':
-        'Painel administrativo da Associação Adote um Vira-Lata: pets, campanhas, parceiros, voluntários, equipes e financeiro, com tema claro/escuro e layout responsivo. Atuei apenas no front-end.',
-      en: 'Admin panel for the Adote um Vira-Lata shelter: pets, campaigns, partners, volunteers, teams and finances, with light/dark theme and responsive layout. I worked on the front-end only.',
-    },
-    // The volunteers screen is a blurred copy: the original shows real CPF,
-    // e-mail and phone numbers. Never swap it for the raw capture.
-    gallery: [
-      {
-        src: adotevlPetsJpg,
-        alt: {
-          'pt-BR':
-            'Tela de Pets do AdoteVL em tema escuro, com cards de cães disponíveis para adoção',
-          en: 'AdoteVL Pets screen in dark theme, with cards of dogs available for adoption',
-        },
-      },
-      {
-        src: adotevlFinanceiroJpg,
-        alt: {
-          'pt-BR':
-            'Tela Financeiro do AdoteVL, com saldo, totais de entradas e saídas e tabela de lançamentos',
-          en: 'AdoteVL Finances screen, with balance, income and expense totals and a transactions table',
-        },
-      },
-      {
-        src: adotevlModalJpg,
-        alt: {
-          'pt-BR':
-            'Modal de cadastro de pet do AdoteVL, com campos de nome, espécie, raça, porte e descrição',
-          en: 'AdoteVL pet registration modal, with name, species, breed, size and description fields',
-        },
-      },
-      {
-        src: adotevlVoluntariosJpg,
-        alt: {
-          'pt-BR':
-            'Tela de Voluntários do AdoteVL, tabela de cadastros aprovados com dados pessoais borrados',
-          en: 'AdoteVL Volunteers screen, a table of approved registrations with personal data blurred',
-        },
-      },
-      {
-        src: adotevlPetsLightJpg,
-        alt: {
-          'pt-BR': 'Tela de Pets do AdoteVL em tema claro',
-          en: 'AdoteVL Pets screen in light theme',
-        },
-      },
-      {
-        src: adotevlMobileJpg,
-        alt: {
-          'pt-BR': 'Três telas do AdoteVL no celular: login, menu lateral e financeiro',
-          en: 'Three AdoteVL mobile screens: login, side menu and finances',
         },
       },
     ],

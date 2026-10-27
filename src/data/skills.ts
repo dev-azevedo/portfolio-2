@@ -100,6 +100,13 @@ export const skills: Skill[] = [
     color: { light: '#5fa04e', dark: '#64a553' },
   },
   { id: 'express', name: 'Express', group: 'backend', icon: 'simple-icons:express' },
+  {
+    id: 'nestjs',
+    name: 'NestJS',
+    group: 'backend',
+    icon: 'simple-icons:nestjs',
+    color: { light: '#e0234e', dark: '#f4677f' },
+  },
 
   // --- front-end ---
   {
