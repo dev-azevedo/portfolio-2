@@ -13,11 +13,11 @@ const { t } = Astro.props
   it does. aria-pressed is synced by app.ts after the pre-paint script ran.
 -->
 <div class="mode-switch" role="group" aria-label={t.mode.group}>
-  <button type="button" class="opt opt-8bit" data-mode-set="8bit" aria-pressed="true">
+  <button type="button" class="opt opt-8bit" data-mode-set="8bit" aria-pressed="false">
     <span aria-hidden="true">8-BIT</span>
     <span class="sr-only">{t.mode.bit}</span>
   </button>
-  <button type="button" class="opt opt-4k" data-mode-set="4k" aria-pressed="false">
+  <button type="button" class="opt opt-4k" data-mode-set="4k" aria-pressed="true">
     <span aria-hidden="true">4K</span>
     <span class="sr-only">{t.mode.hd}</span>
   </button>

@@ -1,6 +1,5 @@
 ---
 import Icon from './Icon.astro'
-import ModeSwitch from './ModeSwitch.astro'
 import Toggles from './Toggles.astro'
 import { navItems } from '@/data/navigation'
 import type { Messages } from '@/i18n'
@@ -39,7 +38,6 @@ const { t, locale } = Astro.props
     </nav>
 
     <div class="end">
-      <ModeSwitch t={t} />
       <div class="desktop-only">
         <Toggles t={t} locale={locale} />
       </div>

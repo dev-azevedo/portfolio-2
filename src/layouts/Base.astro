@@ -43,12 +43,12 @@ const jsonLd = noindex ? null : profileJsonLd(locale, site, new URL(avatar.src, 
 ---
 
 <!doctype html>
-<html lang={locale} data-mode="8bit" data-theme="dark">
+<html lang={locale} data-mode="4k" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#1d1636" />
+    <meta name="theme-color" content="#17151c" />
 
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -117,7 +117,7 @@ const jsonLd = noindex ? null : profileJsonLd(locale, site, new URL(avatar.src, 
           // ?mode=4k|8bit makes a skin linkable; it also becomes the stored choice.
           var param = new URLSearchParams(location.search).get('mode')
           if (param === '4k' || param === '8bit') localStorage.setItem('mode', param)
-          var mode = localStorage.getItem('mode') === '4k' ? '4k' : '8bit'
+          var mode = localStorage.getItem('mode') === '8bit' ? '8bit' : '4k'
           var pref = localStorage.getItem('theme')
           var dark =
             pref === 'dark' ||
